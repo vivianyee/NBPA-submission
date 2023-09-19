@@ -1,24 +1,29 @@
-import express from "express";
-import cors from "cors";
-import "./loadEnvironment.mjs";
-import "express-async-errors";
-import posts from "./routes/posts.mjs";
+import Router from "./routes.js";
+import { createRequire } from "module";
 
-const PORT = process.env.PORT || 5050;
+const require = createRequire(import.meta.url);
+
+const express = require("express");
+const mongoose = require("mongoose");
+
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 
-// Load the /posts routes
-app.use("/posts", posts);
+const username = "vivianyee888";
+const password = "dFnsEr9JAp1tFls5";
+const cluster = "Timesheets";
+const dbname = "NBPATimesheets";
 
-// Global error handling
-app.use((err, _req, res, next) => {
-  res.status(500).send("Uh oh! An unexpected error occured.")
-})
-
-// start the Express server
-app.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
+mongoose.connect(
+  `mongodb+srv://${username}:${password}@${cluster}.garujyt.mongodb.net/${dbname}?retryWrites=true&w=majority`
+);
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error: "));
+db.once("open", function () {
+  console.log("Connected successfully");
+});
+app.use(Router);
+app.listen(5050, () => {
+  console.log("Server is running at port 5050");
 });
